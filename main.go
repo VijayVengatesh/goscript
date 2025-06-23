@@ -23,14 +23,16 @@ type Config struct {
 }
 
 type Metrics struct {
-	UserID      string  `json:"user_id"`
-	Hostname    string  `json:"hostname"`
-	CPUPercent  float64 `json:"cpu_percent"`
-	MemoryUsed  uint64  `json:"memory_used"`
-	MemoryTotal uint64  `json:"memory_total"`
-	DiskUsed    uint64  `json:"disk_used"`
-	DiskTotal   uint64  `json:"disk_total"`
-	Uptime      uint64  `json:"uptime_seconds"`
+	UserID        string  `json:"user_id"`
+	Hostname      string  `json:"hostname"`
+	CPUPercent    float64 `json:"cpu_percent"`
+	MemoryUsed    uint64  `json:"memory_used"`
+	MemoryTotal   uint64  `json:"memory_total"`
+	DiskUsed      uint64  `json:"disk_used"`
+	DiskTotal     uint64  `json:"disk_total"`
+	Uptime        uint64  `json:"uptime_seconds"`
+	MetricGetTime string  `json:"metric_get_time"` // ➕ added UTC timestamp
+
 }
 
 func getConfigPath() string {
@@ -87,22 +89,24 @@ func collectMetrics(userID string) (*Metrics, error) {
 	cpuPercent, _ := cpu.Percent(0, false)
 	diskStat, _ := disk.Usage(path)
 	hostStat, _ := host.Info()
+	utcNow := time.Now().UTC().Format(time.RFC3339) // e.g., "2025-06-18T06:15:04Z"
 
 	return &Metrics{
-		UserID:      userID,
-		Hostname:    hostStat.Hostname,
-		CPUPercent:  cpuPercent[0],
-		MemoryUsed:  vm.Used,
-		MemoryTotal: vm.Total,
-		DiskUsed:    diskStat.Used,
-		DiskTotal:   diskStat.Total,
-		Uptime:      hostStat.Uptime,
+		UserID:        userID,
+		Hostname:      hostStat.Hostname,
+		CPUPercent:    cpuPercent[0],
+		MemoryUsed:    vm.Used,
+		MemoryTotal:   vm.Total,
+		DiskUsed:      diskStat.Used,
+		DiskTotal:     diskStat.Total,
+		Uptime:        hostStat.Uptime,
+		MetricGetTime: utcNow,
 	}, nil
 }
 
 func sendToAPI(metrics *Metrics) {
 	jsonData, _ := json.Marshal(metrics)
-	resp, err := http.Post("http://localhost:5000/metrics", "application/json", bytes.NewBuffer(jsonData))
+	resp, err := http.Post("https://cloudops-api.idevopz.com/metrics", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println("Error sending data:", err)
 		return
