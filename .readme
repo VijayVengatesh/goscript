@@ -1,0 +1,11 @@
+# 64-bit Linux (AMD64)
+GOOS=linux GOARCH=amd64 go build -o metrics-agent-linux-amd64 main.go
+
+# 32-bit Linux (386)
+GOOS=linux GOARCH=386 go build -o metrics-agent-linux-386 main.go
+
+# ARMv7 (e.g., Raspberry Pi)
+GOOS=linux GOARCH=arm GOARM=7 go build -o metrics-agent-linux-arm main.go
+
+# ARM64 (aarch64)
+GOOS=linux GOARCH=arm64 go build -o metrics-agent-linux-arm64 main.go
