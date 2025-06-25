@@ -51,8 +51,25 @@ CONFIG_DIR="/etc/metrics-agent"
 sudo mkdir -p "$CONFIG_DIR"
 echo "{ \"user_id\": \"$USER_ID\" }" | sudo tee "$CONFIG_DIR/config.json" > /dev/null
 
-# Start agent in background
-echo "🚀 Starting metrics-agent..."
-nohup /usr/local/bin/metrics-agent >/dev/null 2>&1 &
+# Create log file
+LOG_FILE="/var/log/metrics-agent.log"
+sudo touch "$LOG_FILE"
+sudo chmod 644 "$LOG_FILE"
 
-echo "✅ Installation complete. Agent running in background."
+# Set up logrotate config for 7-day retention
+cat <<EOF | sudo tee /etc/logrotate.d/metrics-agent > /dev/null
+$LOG_FILE {
+    daily
+    rotate 7
+    compress
+    missingok
+    notifempty
+    copytruncate
+}
+EOF
+
+# Start agent in background with logging
+echo "🚀 Starting metrics-agent..."
+nohup /usr/local/bin/metrics-agent >> "$LOG_FILE" 2>&1 &
+
+echo "✅ Installation complete. Agent running in background. Logs: $LOG_FILE"
