@@ -21,13 +21,13 @@ echo "🔍 Step 1: Detected architecture: $ARCH"
 # Map architecture to release binary
 case "$ARCH" in
     x86_64)
-        AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-linux-amd64"
+        AGENT_URL="AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-amd64"
         ;;
     i386 | i686)
         AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-linux-386"
         ;;
     aarch64 | arm64)
-        AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-linux-arm64"
+        AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-arm64"
         ;;
     armv7l | armv6l)
         AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-linux-arm"
