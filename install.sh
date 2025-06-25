@@ -21,7 +21,7 @@ echo "🔍 Step 1: Detected architecture: $ARCH"
 # Map architecture to release binary
 case "$ARCH" in
     x86_64)
-        AGENT_URL="AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-amd64"
+        AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-amd64"
         ;;
     i386 | i686)
         AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-linux-386"
@@ -56,7 +56,7 @@ echo "✅ Binary installed at /usr/local/bin/metrics-agent"
 echo "🛠 Step 4: Creating config..."
 CONFIG_DIR="/etc/metrics-agent"
 sudo mkdir -p "$CONFIG_DIR" || { echo "❌ Failed to create config directory"; exit 1; }
-echo "{ \"user_id\": \"$USER_ID\" }" | sudo tee "$CONFIG_DIR/config.json" > /dev/null
+echo "{\"user_id\": \"$USER_ID\"}" | sudo tee "$CONFIG_DIR/config.json" > /dev/null
 if [ $? -ne 0 ]; then
     echo "❌ Failed to write config file"
     exit 1
@@ -72,7 +72,7 @@ echo "✅ Log file created at $LOG_FILE"
 # Step 6: Configure logrotate
 echo "♻️ Step 6: Setting up log rotation..."
 cat <<EOF | sudo tee /etc/logrotate.d/metrics-agent > /dev/null
-$LOG_FILE {
+/var/log/metrics-agent.log {
     daily
     rotate 7
     compress
