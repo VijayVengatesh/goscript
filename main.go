@@ -105,14 +105,22 @@ func collectMetrics(userID string) (*Metrics, error) {
 }
 
 func sendToAPI(metrics *Metrics) {
-	jsonData, _ := json.Marshal(metrics)
+	jsonData, _ := json.MarshalIndent(metrics, "", "  ")
+	fmt.Println("📤 Sending payload:\n", string(jsonData))
+
 	resp, err := http.Post("https://cloudops-api.idevopz.com/metrics", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
-		fmt.Println("Error sending data:", err)
+		fmt.Println("❌ Error sending data:", err)
 		return
 	}
 	defer resp.Body.Close()
-	fmt.Println("✅ Metrics sent! Status:", resp.Status)
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		fmt.Println("✅ Metrics sent! Status:", resp.Status)
+	} else {
+		fmt.Printf("❌ Failed to send metrics.\nStatus: %s\nResponse: %s\n", resp.Status, string(body))
+	}
 }
 
 func main() {
