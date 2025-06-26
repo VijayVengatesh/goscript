@@ -33,22 +33,22 @@ ARCH=$(uname -m)
 echo "🔍 Detected architecture: $ARCH"
 
 case "$ARCH" in
-    x86_64)
-        AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-linux-amd64"
-        ;;
-    i386 | i686)
-        AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-linux-386"
-        ;;
-    aarch64 | arm64)
-        AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-linux-arm64"
-        ;;
-    armv7l | armv6l)
-        AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-linux-arm"
-        ;;
-    *)
-        echo "❌ Unsupported architecture: $ARCH"
-        exit 1
-        ;;
+  x86_64)
+    AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/$AGENT_VERSION/$AGENT_NAME-linux-amd64"
+    ;;
+  i386 | i686)
+    AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/$AGENT_VERSION/$AGENT_NAME-linux-386"
+    ;;
+  aarch64 | arm64)
+    AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/$AGENT_VERSION/$AGENT_NAME-linux-arm64"
+    ;;
+  armv7l | armv6l)
+    AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/$AGENT_VERSION/$AGENT_NAME-linux-arm"
+    ;;
+  *)
+    echo "❌ Unsupported architecture: $ARCH"
+    exit 1
+    ;;
 esac
 
 # --- Download and Install Binary ---
