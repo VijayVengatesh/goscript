@@ -9,3 +9,12 @@ GOOS=linux GOARCH=arm GOARM=7 go build -o bin/metrics-agent-linux-arm ./cmd/agen
 
 # ARM64 (aarch64)
 GOOS=linux GOARCH=arm64 go build -o bin/metrics-agent-linux-arm64 ./cmd/agent
+
+
+
+
+instatllation script:
+
+curl -O https://raw.githubusercontent.com/VijayVengatesh/goscript/main/metrics-agent/install.sh
+chmod +x install.sh
+ ./install.sh -key idz-1806919661776965

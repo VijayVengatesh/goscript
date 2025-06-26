@@ -1,78 +1,83 @@
 #!/bin/bash
 
-# Get user ID from arguments
+# --- Configuration ---
+AGENT_VERSION="v1.0.0"
+AGENT_NAME="metrics-agent"
+CONFIG_DIR="/etc/$AGENT_NAME"
+LOG_FILE="/var/log/$AGENT_NAME.log"
+SERVICE_FILE="/etc/systemd/system/$AGENT_NAME.service"
+LOGROTATE_FILE="/etc/logrotate.d/$AGENT_NAME"
+
+# --- Argument Parsing ---
 while [[ "$#" -gt 0 ]]; do
-    case $1 in
-        -key) USER_ID="$2"; shift ;;
-        *) echo "❌ Unknown parameter passed: $1"; exit 1 ;;
-    esac
-    shift
+  case $1 in
+    -key)
+      USER_ID="$2"
+      shift
+      ;;
+    *)
+      echo "❌ Unknown parameter: $1"
+      exit 1
+      ;;
+  esac
+  shift
 done
 
 if [ -z "$USER_ID" ]; then
-    echo "❌ Error: User ID is required. Use -key <your_user_id>"
-    exit 1
+  echo "❌ Error: User ID is required. Use -key <your_user_id>"
+  exit 1
 fi
 
-# Detect system architecture
+# --- Architecture Detection ---
 ARCH=$(uname -m)
-echo "🔍 Step 1: Detected architecture: $ARCH"
+echo "🔍 Detected architecture: $ARCH"
 
-# Map architecture to release binary
 case "$ARCH" in
-    x86_64)
-        AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-linux-amd64"
-        ;;
-    i386 | i686)
-        AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-linux-386"
-        ;;
-    aarch64 | arm64)
-        AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-linux-arm64"
-        ;;
-    armv7l | armv6l)
-        AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/v1.0.0/metrics-agent-linux-arm"
-        ;;
-    *)
-        echo "❌ Unsupported architecture: $ARCH"
-        exit 1
-        ;;
+  x86_64)
+    AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/$AGENT_VERSION/$AGENT_NAME-amd64"
+    ;;
+  i386 | i686)
+    AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/$AGENT_VERSION/$AGENT_NAME-linux-386"
+    ;;
+  aarch64 | arm64)
+    AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/$AGENT_VERSION/$AGENT_NAME-arm64"
+    ;;
+  armv7l | armv6l)
+    AGENT_URL="https://github.com/VijayVengatesh/goscript/releases/download/$AGENT_VERSION/$AGENT_NAME-linux-arm"
+    ;;
+  *)
+    echo "❌ Unsupported architecture: $ARCH"
+    exit 1
+    ;;
 esac
 
-# Step 2: Download the binary
-echo "⬇️ Step 2: Downloading agent from $AGENT_URL"
-curl -L --fail -o metrics-agent "$AGENT_URL"
+# --- Download and Install Binary ---
+echo "⬇️ Downloading $AGENT_NAME from $AGENT_URL"
+curl -L --fail -o $AGENT_NAME "$AGENT_URL"
 if [ $? -ne 0 ]; then
-    echo "❌ Error: Failed to download the agent binary. Please check the URL or internet connection."
-    exit 1
+  echo "❌ Failed to download the agent binary"
+  exit 1
 fi
 
-# Step 3: Make executable and move
-echo "⚙️ Step 3: Installing agent binary..."
-chmod +x metrics-agent || { echo "❌ Failed to make binary executable"; exit 1; }
-sudo mv metrics-agent /usr/local/bin/metrics-agent || { echo "❌ Failed to move binary to /usr/local/bin"; exit 1; }
-echo "✅ Binary installed at /usr/local/bin/metrics-agent"
+chmod +x $AGENT_NAME
+sudo mv $AGENT_NAME /usr/local/bin/$AGENT_NAME
 
-# Step 4: Create config
-echo "🛠 Step 4: Creating config..."
-CONFIG_DIR="/etc/metrics-agent"
-sudo mkdir -p "$CONFIG_DIR" || { echo "❌ Failed to create config directory"; exit 1; }
+echo "✅ Binary installed to /usr/local/bin/$AGENT_NAME"
+
+# --- Create Config Directory and File ---
+sudo mkdir -p "$CONFIG_DIR"
 echo "{\"user_id\": \"$USER_ID\"}" | sudo tee "$CONFIG_DIR/config.json" > /dev/null
-if [ $? -ne 0 ]; then
-    echo "❌ Failed to write config file"
-    exit 1
-fi
-echo "✅ Config created at $CONFIG_DIR/config.json"
 
-# Step 5: Create log file
-LOG_FILE="/var/log/metrics-agent.log"
-echo "📝 Step 5: Creating log file..."
-sudo touch "$LOG_FILE" && sudo chmod 644 "$LOG_FILE" || { echo "❌ Failed to create log file"; exit 1; }
+echo "✅ Config file created at $CONFIG_DIR/config.json"
+
+# --- Create Log File ---
+sudo touch "$LOG_FILE"
+sudo chmod 644 "$LOG_FILE"
 echo "✅ Log file created at $LOG_FILE"
 
-# Step 6: Configure logrotate
-echo "♻️ Step 6: Setting up log rotation..."
-cat <<EOF | sudo tee /etc/logrotate.d/metrics-agent > /dev/null
-/var/log/metrics-agent.log {
+# --- Configure Logrotate ---
+cat <<EOF | sudo tee "$LOGROTATE_FILE" > /dev/null
+$LOG_FILE {
     daily
     rotate 7
     compress
@@ -81,22 +86,33 @@ cat <<EOF | sudo tee /etc/logrotate.d/metrics-agent > /dev/null
     copytruncate
 }
 EOF
-if [ $? -ne 0 ]; then
-    echo "❌ Failed to create logrotate config"
-    exit 1
-fi
-echo "✅ Logrotate config set at /etc/logrotate.d/metrics-agent"
 
-# Step 7: Start agent
-echo "🚀 Step 7: Starting agent..."
-nohup /usr/local/bin/metrics-agent >> "$LOG_FILE" 2>&1 &
-sleep 2
+echo "✅ Logrotate config created at $LOGROTATE_FILE"
 
-# Step 8: Confirm it's running
-pgrep -f metrics-agent > /dev/null
-if [ $? -eq 0 ]; then
-    echo "✅ Installation complete. Agent is running in background. Logs: $LOG_FILE"
+# --- Setup systemd Service ---
+cat <<EOF | sudo tee "$SERVICE_FILE" > /dev/null
+[Unit]
+Description=Metrics Agent Service
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/$AGENT_NAME
+Restart=always
+RestartSec=5
+StandardOutput=append:$LOG_FILE
+StandardError=append:$LOG_FILE
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reexec
+sudo systemctl enable $AGENT_NAME --now
+
+# --- Verify Service ---
+if systemctl is-active --quiet $AGENT_NAME; then
+  echo "✅ $AGENT_NAME service started successfully"
 else
-    echo "❌ Agent failed to start. Check the log file at $LOG_FILE"
-    exit 1
+  echo "❌ Failed to start $AGENT_NAME service. Check logs at $LOG_FILE"
+  exit 1
 fi
