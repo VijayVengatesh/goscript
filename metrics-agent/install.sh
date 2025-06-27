@@ -82,6 +82,8 @@ cat <<EOF | sudo tee /etc/logrotate.d/metrics-agent > /dev/null
     copytruncate
 }
 EOF
+
+
 if [ $? -ne 0 ]; then
     echo "❌ Failed to create logrotate config"
     exit 1
