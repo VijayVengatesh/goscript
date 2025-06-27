@@ -1,0 +1,8 @@
+##windows commend
+powershell(system log count )
+Get-WinEvent -LogName System | Where-Object { $_.LevelDisplayName -eq 'Error' } | Measure-Object   
+powershell (login count )
+Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4624} | Measure-Object | Select -ExpandProperty Count
+
+
+
