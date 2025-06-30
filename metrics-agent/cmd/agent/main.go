@@ -20,8 +20,8 @@ func main() {
 		userID = config.PromptAndSaveUserID()
 	}
 
-	metricTicker := time.NewTicker(1000 * time.Second)
-	healthTicker := time.NewTicker(1000 * time.Second)
+	metricTicker := time.NewTicker(10 * time.Second)
+	healthTicker := time.NewTicker(10 * time.Second)
 	systemSummeryTicker := time.NewTicker(10 * time.Second)
 	loadAverageTicker := time.NewTicker(10 * time.Second)
 	// Stop tickers on exit

@@ -14,6 +14,7 @@ type Metrics struct {
 	DiskTotal     uint64  `json:"disk_total"`
 	Uptime        uint64  `json:"uptime_seconds"`
 	MetricGetTime string  `json:"metric_get_time"`
+	Status        string  `json:"status"` // up, down, trouble, critical
 }
 
 type HealthReport struct {

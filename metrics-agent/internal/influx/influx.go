@@ -40,6 +40,7 @@ func SendToInflux(metrics *models.Metrics) {
 			"disk_total":      metrics.DiskTotal,
 			"uptime_seconds":  metrics.Uptime,
 			"metric_get_time": metrics.MetricGetTime,
+			"status":          metrics.Status, // Add status field
 		},
 		time.Now(),
 	)

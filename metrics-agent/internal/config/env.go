@@ -64,15 +64,15 @@ func LoadConfig() *AppConfig {
 
 	switch env {
 	case "development":
-		cfg.APIEndpoint = "http://localhost:3000/api"
+		cfg.APIEndpoint = "http://localhost:5000"
 		cfg.InfluxURL = "http://localhost:8086"
-		cfg.InfluxToken = "dev-token"
-		cfg.Org = "dev-org"
-		cfg.Bucket = "dev-bucket"
+		cfg.InfluxToken = "kagJZ1M9_vXOi-uP8oAM8wCoUMg7aJchEds8M2bV-DffkgJO0aVyv1tyWk03ZnSYYuJLew9kDxSrPUb2Lhy7cQ=="
+		cfg.Org = "vijay"
+		cfg.Bucket = "metrics"
 
 	case "production":
 		cfg.APIEndpoint = "http://localhost:5000"
-		cfg.InfluxURL = "http://10.1.1.152:8086/"
+		cfg.InfluxURL = "http://10.1.1.154:8086/"
 		cfg.InfluxToken = "BQqNr9GGBFtAoFCkAxMwb3LdhsRIEhBZmyoI22ua1I38xU5nSIBcYfZI2-xyImoQHYv9fPESBdGKX542uncptA=="
 		cfg.Org = "idevopz"
 		cfg.Bucket = "metrics"
