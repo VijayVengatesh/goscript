@@ -15,6 +15,8 @@ type Metrics struct {
 	Uptime        uint64  `json:"uptime_seconds"`
 	MetricGetTime string  `json:"metric_get_time"`
 	Status        string  `json:"status"` // up, down, trouble, critical
+	Status1       int     `json:"status"` // up, down, trouble, critical
+
 }
 
 type HealthReport struct {

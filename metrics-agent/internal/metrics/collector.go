@@ -50,5 +50,6 @@ func Collect(userID string) (*models.Metrics, error) {
 		Uptime:        hostStat.Uptime,
 		MetricGetTime: utcNow,
 		Status:        status,
+		Status1:       1,
 	}, nil
 }

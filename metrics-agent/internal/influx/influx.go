@@ -18,21 +18,30 @@ var (
 	bucket      = config.LoadConfig().Bucket
 )
 
+type InfluxWriteResult struct {
+	Measurement string
+	Tags        map[string]string
+	Fields      map[string]interface{}
+	Time        time.Time
+	Error       error
+}
+
 func SendToInflux(metrics *models.Metrics) {
 	// Create InfluxDB client
 	client := influxdb2.NewClient(influxURL, influxToken)
 	defer client.Close()
 
 	writeAPI := client.WriteAPIBlocking(org, bucket)
+	fmt.Println("📤 Sending metrics to InfluxDB...", metrics)
 
 	// Create a point
 	point := write.NewPoint(
-		"vm_metrics", // Measurement name
+		"vm_metrics",
 		map[string]string{
 			"user_id":  metrics.UserID,
 			"hostname": metrics.Hostname,
 		},
-		map[string]any{
+		map[string]interface{}{
 			"cpu_percent":     metrics.CPUPercent,
 			"memory_used":     metrics.MemoryUsed,
 			"memory_total":    metrics.MemoryTotal,
@@ -40,17 +49,33 @@ func SendToInflux(metrics *models.Metrics) {
 			"disk_total":      metrics.DiskTotal,
 			"uptime_seconds":  metrics.Uptime,
 			"metric_get_time": metrics.MetricGetTime,
-			"status":          metrics.Status, // Add status field
+			"status":          metrics.Status,
 		},
 		time.Now(),
 	)
 
-	// Write point
+	// Write the point
 	err := writeAPI.WritePoint(context.Background(), point)
 	if err != nil {
 		fmt.Println("❌ Failed to write to InfluxDB:", err)
 	} else {
 		fmt.Println("✅ Metrics successfully written to InfluxDB")
+
+		// Convert tags to map for clean printing
+		tags := map[string]string{}
+		for _, tag := range point.TagList() {
+			tags[tag.Key] = tag.Value
+		}
+
+		// Convert fields to map for clean printing
+		fields := map[string]interface{}{}
+		for _, field := range point.FieldList() {
+			fields[field.Key] = field.Value
+		}
+
+		fmt.Printf("📦 Written data:\n  Measurement: %s\n  Tags: %v\n  Fields: %v\n  Time: %s\n",
+			point.Name(), tags, fields, point.Time().Format(time.RFC3339),
+		)
 	}
 }
 
